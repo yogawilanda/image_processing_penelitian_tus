@@ -1,112 +1,169 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:image_processing_penelitian_tus/controllers/camera_controllers.dart';
+import 'package:image_processing_penelitian_tus/constants/text_list.dart'
+    as text;
 
 class MainPage extends StatefulWidget {
-  MainPage({super.key});
+  MainPage({Key? key}) : super(key: key);
 
-  String dataResult = "Result From Image Processing";
+  String? dataResult = text.noData;
+
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
+  late CameraControllers _cameraControllers;
+  bool isCameraPreviewVisible = false;
+
   @override
   void initState() {
     super.initState();
-    debugPrint('Inisiasi berhasil: Masuk ke Halaman Main');
+    _cameraControllers = CameraControllers();
+    _initializeCamera();
+    debugPrint(text.debugInitMessage);
+  }
+
+  Future<void> _initializeCamera() async {
+    try {
+      await _cameraControllers.initializeCamera();
+      setState(() {
+        debugPrint(text.debugCameraState);
+      });
+    } catch (e) {
+      debugPrint('${text.errorCameraInitialization} $e');
+    }
   }
 
   // Todo : 1. Implement fetch and process the image from camera
-  // get and process image from camera
-  Future processImageFromCamera() async {
-    // show debug print
-    debugPrint('processImageFromCamera : pressed by future function');
+  Future<void> _processImageFromCamera() async {
+    debugPrint(text.debugImageProcessSuccess);
+    final XFile image = await _cameraControllers.controller.takePicture();
+
     setState(() {
-      widget.dataResult = "Result From Image Processing Clicked";
+      widget.dataResult = text.setStateCaptureImageMessage;
+
+      debugPrint("${text.setStateFromCameraMessage} ${image.path}");
+      _initializeCamera();
+      isCameraPreviewVisible = true;
     });
   }
 
   // Todo : 2. Implement fetch and process the image from gallery
-  // get and process image from gallery
-  Future processImageFromGallery() async {
-    // show debug print
-    debugPrint('processImageFromCamera : pressed by future function');
+  Future<void> _processImageFromGallery() async {
+    debugPrint(text.processImageFunctionMessage);
     setState(() {
-      widget.dataResult = "Develope the Image Processing Camera First!";
+      widget.dataResult = text.setStateOpenFileMessage;
     });
+  }
+
+  @override
+  void dispose() {
+    _cameraControllers.disposeCamera();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Image Processing',
+        title: Text(
+          text.titleAppBar,
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.red.shade900,
       ),
-      body: SingleChildScrollView(
-        child: Center(
+      body: content(),
+    );
+  }
+
+  Widget content() {
+    return SingleChildScrollView(
+      child: Center(
           child: Container(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Text(
-                  'Image Recognition Using TF',
-                  style: TextStyle(fontSize: 24),
-                ),
-
-                Container(
-                  margin: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    "Silahkan pilih gambar dari kamera atau galeri",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-                // todo: 3. ------ Image Section -------
-                // Conditionally if image is not picked, then show text "No Image Selected"
-                // (imageSource != null)
-                //     ? Image.file(
-                //         imageSource!,
-                //         width: 300,
-                //         height: 300,
-                //       )
-                //     : Text("No Image Selected"),
-
-                ButtonBar(
-                  alignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        // todo: 4. ------ Implement fetch and process the image from camera
-                        processImageFromCamera();
-                      },
-                      child: const Text('📸'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // todo: 5. ------ Implement fetch and process the image from gallery
-                        processImageFromGallery();
-                      },
-                      child: const Text('📂'),
-                    ),
-                  ],
-                ),
-
-                Container(
-                  padding: const EdgeInsets.all(16),
-                ),
-                
+                title(),
+                // todo: 3. ------ Camera Preview Section -------
+                isCameraPreviewVisible ? cameraPreview() : noCameraResult(),
+                buttonRow(),
                 // todo: 6. ------ Result Section -------
-                Text(widget.dataResult ?? "No Data"),
+                dynamicText(widget.dataResult ?? text.noData),
               ],
             ),
           ),
         ),
+    );
+  }
+
+  Padding fixedPadding({double paddingValue = 16}) {
+    return Padding(
+      padding: EdgeInsets.all(paddingValue),
+    );
+  }
+
+  Text title() {
+    return Text(
+      text.titleBody,
+      style: TextStyle(fontSize: 24),
+    );
+  }
+
+  Text dynamicText(String content) => Text(widget.dataResult ?? text.noData);
+
+  ButtonBar buttonRow() {
+    return ButtonBar(
+      alignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            // todo: 4. ------ Implement fetch and process the image from camera
+            _processImageFromCamera();
+          },
+          child: const Text('📸'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            // todo: 5. ------ Implement fetch and process the image from gallery
+            _processImageFromGallery();
+          },
+          child: Text(text.cameraButtonIcon),
+        ),
+        fixedPadding(),
+      ],
+    );
+  }
+
+  Container cameraPreview() {
+    return Container(
+      height: 400,
+      width: 400,
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(16),
+      child: AspectRatio(
+        aspectRatio: _cameraControllers.controller.value.aspectRatio,
+        child: CameraPreview(_cameraControllers.controller),
       ),
+
+      // todo: 3. ------ Image Section -------
+      // Conditionally if image is not picked, then show text "No Image Selected"
+      // (imageSource != null)
+      //     ? Image.file(
+      //         imageSource!,
+      //         width: 300,
+      //         height: 300,
+      //       )
+      //     : Text("No Image Selected"),
+    );
+  }
+
+  Container noCameraResult() {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      child: Text(text.noCameraPreview),
     );
   }
 }

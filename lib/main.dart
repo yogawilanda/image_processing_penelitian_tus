@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_processing_penelitian_tus/main_page/main_page.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
