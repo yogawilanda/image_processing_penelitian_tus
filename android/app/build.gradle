@@ -24,7 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.image_processing_penelitian_tus"
-    compileSdkVersion flutter.compileSdkVersion
+    // compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 33 // SDK version for flutter ml image processing
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -46,7 +47,8 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
-        targetSdkVersion flutter.targetSdkVersion
+        // targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 33 // SDK version for flutter ml image processing
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
