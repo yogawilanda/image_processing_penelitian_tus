@@ -82,20 +82,20 @@ class _MainPageState extends State<MainPage> {
   Widget content() {
     return SingleChildScrollView(
       child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                title(),
-                // todo: 3. ------ Camera Preview Section -------
-                isCameraPreviewVisible ? cameraPreview() : noCameraResult(),
-                buttonRow(),
-                // todo: 6. ------ Result Section -------
-                dynamicText(widget.dataResult ?? text.noData),
-              ],
-            ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              title(),
+              // todo: 3. ------ Camera Preview Section -------
+              isCameraPreviewVisible ? cameraPreview() : noCameraResult(),
+              buttonRow(),
+              // todo: 6. ------ Result Section -------
+              dynamicText(widget.dataResult ?? text.noData),
+            ],
           ),
         ),
+      ),
     );
   }
 
@@ -143,9 +143,33 @@ class _MainPageState extends State<MainPage> {
       width: 400,
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(16),
-      child: AspectRatio(
-        aspectRatio: _cameraControllers.controller.value.aspectRatio,
-        child: CameraPreview(_cameraControllers.controller),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              // Any decoration necessary
+            ),
+            child: ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(16), // Match container's borderRadius
+              child: AspectRatio(
+                aspectRatio: _cameraControllers.controller.value.aspectRatio,
+                child: CameraPreview(_cameraControllers.controller),
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            alignment: Alignment.bottomCenter,
+            child: ElevatedButton(
+              onPressed: () {
+                _processImageFromCamera();
+              },
+              child: Text("Scan Image"),
+            ),
+          )
+        ],
       ),
 
       // todo: 3. ------ Image Section -------
