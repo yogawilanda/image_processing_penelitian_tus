@@ -15,7 +15,6 @@ String get debugInitMessage => 'Initialization successful: Navigated to the Main
 String get debugImageProcessSuccess => 'processImageFromCamera: pressed by future function';
 String get debugCameraState => 'Camera state: setState is called';
 String get errorCameraInitialization => 'Error initializing camera: ';
-
 String get  processImageFunctionMessage => 'processImageFromGallery!: pressed by future function!';
 String get  setStateFromCameraMessage => "Captured image path: ->";
 

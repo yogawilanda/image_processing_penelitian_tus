@@ -37,14 +37,30 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  // Close the camera when the widget is removed from the widget tree.
+  void _closeCamera() async {
+    setState(() {
+      isCameraPreviewVisible = false;
+    });
+  }
+
   // Todo : 1. Implement fetch and process the image from camera
   Future<void> _processImageFromCamera() async {
     debugPrint(text.debugImageProcessSuccess);
-    final XFile image = await _cameraControllers.controller.takePicture();
+    // final XFile image = await _cameraControllers.controller.takePicture();
 
     setState(() {
       widget.dataResult = text.setStateCaptureImageMessage;
+      // debugPrint("${text.setStateFromCameraMessage} ${image.path}");
+      _initializeCamera();
+      isCameraPreviewVisible = true;
+    });
+  }
 
+  Future<void> _captureImage() async {
+    final XFile image = await _cameraControllers.controller.takePicture();
+    setState(() {
+      widget.dataResult = text.setStateCaptureImageMessage;
       debugPrint("${text.setStateFromCameraMessage} ${image.path}");
       _initializeCamera();
       isCameraPreviewVisible = true;
@@ -148,8 +164,8 @@ class _MainPageState extends State<MainPage> {
         children: [
           Container(
             decoration: BoxDecoration(
-              // Any decoration necessary
-            ),
+                // Any decoration necessary
+                ),
             child: ClipRRect(
               borderRadius:
                   BorderRadius.circular(16), // Match container's borderRadius
@@ -164,11 +180,23 @@ class _MainPageState extends State<MainPage> {
             alignment: Alignment.bottomCenter,
             child: ElevatedButton(
               onPressed: () {
-                _processImageFromCamera();
+                _captureImage();
               },
               child: Text("Scan Image"),
             ),
-          )
+          ),
+          Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                onPressed: _closeCamera,
+                icon: Icon(
+                  Icons.close,
+                  color: Colors.red.shade900,
+                  size: 32,
+                  semanticLabel: "Close Camera",
+                ),
+              )),
         ],
       ),
 
